@@ -1,0 +1,36 @@
+version: '3'
+
+services:
+  typesense_demo_typesense:
+    container_name: typesense_demo_typesense
+    image: typesense/typesense:0.23.1
+    entrypoint: sh -c "/opt/typesense-server --data-dir /data --api-key=secret --enable-cors"
+    expose:
+      - 8108
+    ports:
+      - "8108:8108"
+    volumes:
+      - typesense_demo_data:/data
+    networks:
+      - typesense_demo_network
+
+  typesense_demo_app:
+    container_name: typesense_demo_app
+    build:
+      context: ./app
+    ports:
+      - "8080:8080"
+    networks:
+      - typesense_demo_network
+    environment:
+      TYPESENSE_HOST: "typesense_demo_typesense"
+      TYPESENSE_PORT: 8108
+      TYPESENSE_API_KEY: "secret"
+
+volumes:
+  typesense_demo_data:
+    driver: local
+
+networks:
+  typesense_demo_network:
+    driver: bridge
