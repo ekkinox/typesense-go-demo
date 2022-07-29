@@ -52,8 +52,8 @@ func (c TypesenseClient) Search(expression string) (*api.SearchResult, error) {
 		//FilterBy: pointer.String("num_employees:>100"),
 		SortBy:            pointer.String("num_employees:desc"),
 		PerPage:           pointer.Int(250),
-		HighlightStartTag: pointer.String("<code>"),
-		HighlightEndTag:   pointer.String("</code>"),
+		HighlightStartTag: pointer.String("<span class=\"text-dark bg-warning\">"),
+		HighlightEndTag:   pointer.String("</span>"),
 		FacetBy:           pointer.String("country"),
 	}
 
@@ -121,7 +121,7 @@ func (c TypesenseClient) PopulateSchema(num int) error {
 			Id:           strconv.Itoa(pos),
 			Name:         gen.Company().Name(),
 			Description:  gen.Company().CatchPhrase(),
-			Address:      gen.Address().Address(),
+			Address:      gen.Address().Address()[1:],
 			NumEmployees: gen.IntBetween(1, 10000),
 			Country:      gen.Address().CountryAbbr(),
 		})
