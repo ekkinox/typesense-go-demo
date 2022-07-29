@@ -60,8 +60,7 @@
                             <input type="text" class="form-control" placeholder="Search for companies" aria-label="Search for companies" v-model="expression"/>
                             <div class="input-group-append">
                                 <button class="btn btn-primary" type="button" v-on:click="reload">
-                                    <span v-if="loading"><i class="fas fa-spinner fa-spin"></i>&nbsp;Loading...</span>
-                                    <span v-else><i class="fas fa-sync"></i>&nbsp;Reset</span>
+                                    <i class="fas fa-sync"></i>&nbsp;Reset
                                 </button>
                             </div>
                         </div>
@@ -74,8 +73,7 @@
                             <input type="number" class="form-control" placeholder="500" aria-label="Number of companies to populate" v-model="populatecount"/>
                             <div class="input-group-append">
                                 <button class="btn btn-primary" type="button" v-on:click="populate">
-                                    <span v-if="loading"><i class="fas fa-spinner fa-spin"></i>&nbsp;Loading...</span>
-                                    <span v-else><i class="fas fa-plus-circle"></i>&nbsp;Populate</span>
+                                    <i class="fas fa-plus-circle"></i>&nbsp;Populate
                                 </button>
                             </div>
                         </div>
@@ -99,23 +97,43 @@
                 </div>
                 <div class="col-md-10">
                     <div class="card">
-                        <div class="card-header">Results {{ data.found }} out of {{ data.out_of }} (took {{ data.search_time_ms }} ms)</div>
+                        <div class="card-header">
+                            <div class="float-left">
+                                <form class="form-inline">
+                                    Showing&nbsp;&nbsp;
+                                    <select id="inputState" class="form-control form-control-sm" v-model="size">
+                                        <option selected>20</option>
+                                        <option>50</option>
+                                        <option>100</option>
+                                        <option>250</option>
+                                    </select>
+                                    &nbsp;&nbsp;out of &nbsp;<b>{{ data.found }}</b>&nbsp; companies
+                                </form>
+                            </div>
+                            <div class="float-right">
+                                <small class="text-muted" v-if="loading"><i class="fas fa-spinner fa-spin"></i>&nbsp;Loading...</small>
+                                <small class="text-muted" v-else>took ~{{ data.search_time_ms }} ms</small>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
                         <div class="card-body">
                             <div class="card-columns">
                                 <div class="card bg-light" v-for="hit in highlightedHits">
                                     <div class="card-body">
                                         <h6 class="card-title"><i class="fa fa-building"></i>&nbsp;<strong v-html="hit.dName">{{ hit.dName}}</strong></h6>
-                                        <p class="card-text" v-html="hit.dDesc"><em>{{ hit.document.dDesc }}</em></p>
-                                        <p class="card-text" v-html="hit.dAddr">
-                                            <small><i class="fa fa-map-marker"></i>&nbsp;{{ hit.document.dAddr }}</small>
+                                        <p class="card-text">
+                                            "<em v-html="hit.dDesc">{{ hit.document.dDesc }}</em>"
                                         </p>
                                         <p class="card-text">
-                                        <div class="float-left">
-                                            <small class="text-muted"><i class="fa fa-users"></i>&nbsp;{{ hit.document.num_employees }} employees</small>
-                                        </div>
-                                        <div class="float-right">
-                                            <small class="text-muted"><i class="fa fa-globe"></i>&nbsp;{{ hit.document.country }}</small>
-                                        </div>
+                                            <small><i class="fa fa-map-marker"></i>&nbsp;<span v-html="hit.dAddr">{{ hit.document.dAddr }}</span></small>
+                                        </p>
+                                        <p class="card-text">
+                                            <div class="float-left">
+                                                <small class="text-muted"><i class="fa fa-users"></i>&nbsp;{{ hit.document.num_employees }} employees</small>
+                                            </div>
+                                            <div class="float-right">
+                                                <small class="text-muted"><i class="fa fa-globe"></i>&nbsp;{{ hit.document.country }}</small>
+                                            </div>
                                         </p>
                                     </div>
                                 </div>
@@ -136,6 +154,7 @@
                 return {
                     loading: false,
                     expression: "",
+                    size: 20,
                     populatecount: 500,
                     data: {
                         found: 0,
@@ -154,16 +173,16 @@
                     } else {
                         this.reload()
                     }
+                },
+                size(value) {
+                    if (value !== "") {
+                        this.search()
+                    } else {
+                        this.reload()
+                    }
                 }
             },
             methods: {
-                search() {
-                    this.loading = true
-                    axios
-                        .get('/search?expression=' + this.expression)
-                        .then(response => this.data = response.data)
-                        .finally(() => this.loading = false)
-                },
                 populate() {
                     this.loading = true
                     axios
@@ -171,11 +190,19 @@
                         .then(response => alert(response.data.count + ' companies were populated with success.'))
                         .finally(() => this.reload())
                 },
-                reload() {
-                    this.expression = ""
+                search() {
                     this.loading = true
                     axios
-                        .get('/search')
+                        .get('/search?expression=' + this.expression + '&size=' + this.size)
+                        .then(response => this.data = response.data)
+                        .finally(() => this.loading = false)
+                },
+                reload() {
+                    this.expression = ""
+                    this.size = 20
+                    this.loading = true
+                    axios
+                        .get('/search?size=' + this.size)
                         .then(response => this.data = response.data)
                         .finally(() => this.loading = false)
                 }

@@ -45,13 +45,13 @@ func InitTypesenseClient() TypesenseClient {
 	return TypesenseClient{client}
 }
 
-func (c TypesenseClient) Search(expression string) (*api.SearchResult, error) {
+func (c TypesenseClient) Search(expression string, size int) (*api.SearchResult, error) {
 	searchParameters := &api.SearchCollectionParams{
 		Q:       expression,
 		QueryBy: "name,description,address",
 		//FilterBy: pointer.String("num_employees:>100"),
 		SortBy:            pointer.String("num_employees:desc"),
-		PerPage:           pointer.Int(250),
+		PerPage:           pointer.Int(size),
 		HighlightStartTag: pointer.String("<span class=\"text-dark bg-warning\">"),
 		HighlightEndTag:   pointer.String("</span>"),
 		FacetBy:           pointer.String("country"),

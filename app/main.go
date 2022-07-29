@@ -44,8 +44,9 @@ func main() {
 	fiberApp.Get("/search", func(c *fiber.Ctx) error {
 
 		expression := c.Query("expression", "")
+		size, _ := strconv.ParseInt(c.Query("size", "20"), 10, 0)
 
-		res, err := typesenseClient.Search(expression)
+		res, err := typesenseClient.Search(expression, int(size))
 		if err != nil {
 			return err
 		}
