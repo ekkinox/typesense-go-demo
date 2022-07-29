@@ -109,7 +109,7 @@
                                     </select>
                                     &nbsp;&nbsp;out of &nbsp;<b>{{ data.found }}</b>&nbsp; companies&nbsp;&nbsp;
                                     <small class="text-muted" v-if="loading"><i class="fas fa-spinner fa-spin"></i>&nbsp;Loading...</small>
-                                    <small class="text-muted" v-else>took ~{{ data.search_time_ms }} ms</small>
+                                    <small class="text-muted" v-else>(took ~{{ data.search_time_ms }} ms)</small>
                                 </form>
                             </div>
                             <div class="float-right">
