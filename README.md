@@ -2,18 +2,19 @@
 
 > [Typesense](https://typesense.org/) companies search demo application, written using [Golang](https://go.dev/), [Vue.js](https://vuejs.org/) and [Axios](https://axios-http.com/).
 
+![Screenshot](/home/jonathan/Dev/ankorstore/sandbox/typesense-go-demo/doc/screenshot.png)
+
 ## Usage
 
-- First, start the provided [docker compose stack](docker-compose.yaml)
+First, start the provided [docker compose stack](docker-compose.yaml)
 
-    ```shell
-    docker compose up -d
-    ```
+```shell
+docker compose up -d
+```
 
-- Then, populate the companies collection with sample data by calling [http://localhost:8080/populate](http://localhost:8080/populate)
-
-
-- Finally, you can access the application on [http://localhost:8080](http://localhost:8080) and try to search companies.
+Then head to, you can access the application on [http://localhost](http://localhost) to:
+- first populate the companies collection
+- and then try to search for them
 
 ## Configuration
 
