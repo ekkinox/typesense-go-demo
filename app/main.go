@@ -2,7 +2,6 @@ package main
 
 import (
 	"embed"
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -69,7 +68,9 @@ func main() {
 			return err
 		}
 
-		return c.SendString(fmt.Sprintf("Collection `%s` populated with %d documents", client.Collection, int(count)))
+		return c.JSON(fiber.Map{
+			"count": count,
+		})
 
 	})
 

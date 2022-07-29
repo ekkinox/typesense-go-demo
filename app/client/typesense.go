@@ -48,7 +48,7 @@ func InitTypesenseClient() TypesenseClient {
 func (c TypesenseClient) Search(expression string) (*api.SearchResult, error) {
 	searchParameters := &api.SearchCollectionParams{
 		Q:       expression,
-		QueryBy: "name,description",
+		QueryBy: "name,description,address",
 		//FilterBy: pointer.String("num_employees:>100"),
 		SortBy:            pointer.String("num_employees:desc"),
 		PerPage:           pointer.Int(250),

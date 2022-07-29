@@ -15,12 +15,22 @@
     <body>
         <div id="app" class="container">
             <div class="jumbotron" style="padding-bottom: 5px">
-                <h3>
-                    <i class="fa fa-building"></i>&nbsp;<strong>Companies Search Demo</strong>
-                </h3>
+                <div>
+                    <div class="float-left">
+                        <h3>
+                            <i class="fa fa-building"></i>&nbsp;<strong>Companies Search Demo</strong>
+                        </h3>
+                    </div>
+                    <div class="float-right">
+                        <span class="text-dark">
+                            <i class="fab fa-github"></i>&nbsp;<a href="https://github.com/ekkinox/typesense-go-demo" target="_blank">See on Github</a>
+                        </span>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
                 <hr/>
-                <div class="alert alert-primary alert-no-margin-bottom" role="alert">
-                    <i class="fas fa-info-circle"></i>&nbsp;<a href="https://typesense.org" target="_blank">Typesense</a> based demo application, written using <a href="https://go.dev" target="_blank">Golang</a>, <a href="https://vuejs.org" target="_blank">Vue.js</a> and <a href="https://axios-http.com" target="_blank">Axios</a>.
+                <div class="alert alert-success alert-no-margin-bottom" role="alert">
+                    <i class="fas fa-bullhorn"></i>&nbsp;<a href="https://typesense.org" target="_blank">Typesense</a> based demo application, written using <a href="https://go.dev" target="_blank">Golang</a>, <a href="https://vuejs.org" target="_blank">Vue.js</a> and <a href="https://axios-http.com" target="_blank">Axios</a>.
                 </div>
             </div>
             <div class="card">
@@ -28,23 +38,26 @@
                     <ul class="nav nav-tabs nav-justified card-header-tabs" id="userTab" role="tablist">
                         <li class="nav-item" role="presentation">
                             <a class="nav-link active" id="auth-tab" data-toggle="tab" href="#search" role="tab" aria-controls="search" aria-selected="true">
-                                <i class="fas fa-search"></i>&nbsp;Search
+                                <i class="fas fa-search"></i>&nbsp;Search&nbsp;<span class="badge badge-pill badge-primary">{{ data.out_of }}</span>
                             </a>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <a class="nav-link" id="register-tab" data-toggle="tab" href="#populate" role="tab" aria-controls="populate" aria-selected="false">
+                            <a class="nav-link" id="populate-tab" data-toggle="tab" href="#populate" role="tab" aria-controls="populate" aria-selected="false">
                                 <i class="fas fa-plus-circle"></i>&nbsp;Populate
                             </a>
                         </li>
                     </ul>
                 </div>
-                <div class="card-body">
+                <div class="card-body tab-content">
                     <div class="tab-pane fade show active" id="search" role="tabpanel" aria-labelledby="search-tab">
+                        <div class="alert alert-info" role="alert">
+                            <i class="fas fa-info-circle"></i>&nbsp;You can <strong>full-text search live</strong> within the <strong>{{ data.out_of }}</strong> available companies below, with the expression of your choice.
+                        </div>
                         <div class="input-group">
-                            <div class="input-group-prepend" title="See Manticore search documentation">
-                                <a href="https://manual.manticoresearch.com/Searching/Intro" target="_blank" class="btn btn-secondary"><i class="fas fa-info-circle"></i></a>
+                            <div class="input-group-prepend" title="See Typesense search documentation">
+                                <a href="https://typesense.org/docs/0.23.1/api/search.html" target="_blank" class="btn btn-secondary"><i class="fas fa-book"></i></a>
                             </div>
-                            <input type="text" class="form-control" placeholder="Search for companies" aria-label="Search movies" v-model="expression"/>
+                            <input type="text" class="form-control" placeholder="Search for companies" aria-label="Search for companies" v-model="expression"/>
                             <div class="input-group-append">
                                 <button class="btn btn-primary" type="button" v-on:click="reload">
                                     <span v-if="loading"><i class="fas fa-spinner fa-spin"></i>&nbsp;Loading...</span>
@@ -54,21 +67,58 @@
                         </div>
                     </div>
                     <div class="tab-pane fade" id="populate" role="tabpanel" aria-labelledby="populate-tab">
-                        todo
+                        <div class="alert alert-info" role="alert">
+                            <i class="fas fa-info-circle"></i>&nbsp;You can <strong>wipe and repopulate the companies collection</strong> on Typesense below, with the number of companies to create of your choice.
+                        </div>
+                        <div class="input-group">
+                            <input type="number" class="form-control" placeholder="500" aria-label="Number of companies to populate" v-model="populatecount"/>
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" type="button" v-on:click="populate">
+                                    <span v-if="loading"><i class="fas fa-spinner fa-spin"></i>&nbsp;Loading...</span>
+                                    <span v-else><i class="fas fa-plus-circle"></i>&nbsp;Populate</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
             <br/>
-            <div class="card">
-                <div class="card-header">Results {{ data.found }} out of {{ data.out_of }} (took {{ data.search_time_ms }} ms)</div>
-                <div class="card-body">
-                    <div class="card-columns">
-                        <div class="card" v-for="hit in highlightedHits">
-                            <div class="card-body">
-                                <h6 class="card-title"><i class="fa fa-building"></i>&nbsp;<strong v-html="hit.dName">{{ hit.dName}}</strong>&nbsp;<small>({{ hit.document.country }})</small></h6>
-                                <p class="card-text" v-html="hit.dDesc">{{ hit.document.dDesc }}</p>
-                                <p class="card-text">{{ hit.document.address }}</p>
-                                <span class="card-text"><small class="text-muted">Num employees: {{ hit.document.num_employees }}</small></span>
+            <div class="row">
+                <div class="col-md-2">
+                    <div class="card">
+                        <div class="card-header">Countries</div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center" v-for="facet in countryFacets">
+                                <span>
+                                    <i class="fa fa-globe"></i>&nbsp;{{ facet.value }}
+                                </span>
+                                <span class="badge badge-primary badge-pill">{{ facet.count }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-10">
+                    <div class="card">
+                        <div class="card-header">Results {{ data.found }} out of {{ data.out_of }} (took {{ data.search_time_ms }} ms)</div>
+                        <div class="card-body">
+                            <div class="card-columns">
+                                <div class="card bg-light" v-for="hit in highlightedHits">
+                                    <div class="card-body">
+                                        <h6 class="card-title"><i class="fa fa-building"></i>&nbsp;<strong v-html="hit.dName">{{ hit.dName}}</strong></h6>
+                                        <p class="card-text" v-html="hit.dDesc"><em>{{ hit.document.dDesc }}</em></p>
+                                        <p class="card-text" v-html="hit.dAddr">
+                                            <small><i class="fa fa-map-marker"></i>&nbsp;{{ hit.document.dAddr }}</small>
+                                        </p>
+                                        <p class="card-text">
+                                        <div class="float-left">
+                                            <small class="text-muted"><i class="fa fa-users"></i>&nbsp;{{ hit.document.num_employees }} employees</small>
+                                        </div>
+                                        <div class="float-right">
+                                            <small class="text-muted"><i class="fa fa-globe"></i>&nbsp;{{ hit.document.country }}</small>
+                                        </div>
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -86,11 +136,13 @@
                 return {
                     loading: false,
                     expression: "",
+                    populatecount: 500,
                     data: {
                         found: 0,
                         out_of: 0,
                         page: 0,
                         hits: [],
+                        facet_counts: [],
                         search_time_ms: 0
                     },
                 }
@@ -112,6 +164,13 @@
                         .then(response => this.data = response.data)
                         .finally(() => this.loading = false)
                 },
+                populate() {
+                    this.loading = true
+                    axios
+                        .get('/populate?count=' + this.populatecount)
+                        .then(response => alert(response.data.count + ' companies were populated with success.'))
+                        .finally(() => this.reload())
+                },
                 reload() {
                     this.expression = ""
                     this.loading = true
@@ -127,6 +186,7 @@
 
                         hit.dName = hit.document.name
                         hit.dDesc = hit.document.description
+                        hit.dAddr = hit.document.address
 
                         hit.highlights.forEach(function (h) {
                             if (h.field === "name") {
@@ -135,10 +195,17 @@
                             if (h.field === "description") {
                                 hit.dDesc = h.snippet
                             }
+                            if (h.field === "address") {
+                                hit.dAddr = h.snippet
+                            }
                         })
                     })
 
                     return this.data.hits
+                },
+                countryFacets: function () {
+                    console.log(this.data.facet_counts[0].counts)
+                    return this.data.facet_counts[0].counts
                 }
             },
             mounted () {
