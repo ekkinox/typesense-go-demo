@@ -10,7 +10,6 @@
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-fQybjgWLrvvRgtW6bFlB7jaZrFsaBXjsOMm/tB9LTS58ONXgqbR9W8oWht/amnpF" crossorigin="anonymous"></script>
-        <script src="https://unpkg.com/vuejs-paginate@2.1.0/dist/index.js"></script>
         <script src="https://kit.fontawesome.com/be40e717f7.js" crossorigin="anonymous"></script>
     </head>
     <body>
@@ -25,23 +24,40 @@
                 </div>
             </div>
             <div class="card">
-                <div class="card-header">Search</div>
+                <div class="card-header">
+                    <ul class="nav nav-tabs nav-justified card-header-tabs" id="userTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link active" id="auth-tab" data-toggle="tab" href="#search" role="tab" aria-controls="search" aria-selected="true">
+                                <i class="fas fa-search"></i>&nbsp;Search
+                            </a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" id="register-tab" data-toggle="tab" href="#populate" role="tab" aria-controls="populate" aria-selected="false">
+                                <i class="fas fa-plus-circle"></i>&nbsp;Populate
+                            </a>
+                        </li>
+                    </ul>
+                </div>
                 <div class="card-body">
-                    <div class="input-group">
-                        <div class="input-group-prepend" title="See Manticore search documentation">
-                            <a href="https://manual.manticoresearch.com/Searching/Intro" target="_blank" class="btn btn-secondary"><i class="fas fa-info-circle"></i></a>
+                    <div class="tab-pane fade show active" id="search" role="tabpanel" aria-labelledby="search-tab">
+                        <div class="input-group">
+                            <div class="input-group-prepend" title="See Manticore search documentation">
+                                <a href="https://manual.manticoresearch.com/Searching/Intro" target="_blank" class="btn btn-secondary"><i class="fas fa-info-circle"></i></a>
+                            </div>
+                            <input type="text" class="form-control" placeholder="Search for companies" aria-label="Search movies" v-model="expression"/>
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" type="button" v-on:click="reload">
+                                    <span v-if="loading"><i class="fas fa-spinner fa-spin"></i>&nbsp;Loading...</span>
+                                    <span v-else><i class="fas fa-sync"></i>&nbsp;Reset</span>
+                                </button>
+                            </div>
                         </div>
-                        <input type="text" class="form-control" placeholder="Search for companies" aria-label="Search movies" v-model="expression"/>
-                        <div class="input-group-append">
-                            <button class="btn btn-primary" type="button" v-on:click="reload">
-                                <span v-if="loading"><i class="fas fa-spinner fa-spin"></i>&nbsp;Loading...</span>
-                                <span v-else><i class="fas fa-sync"></i>&nbsp;Reset</span>
-                            </button>
-                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="populate" role="tabpanel" aria-labelledby="populate-tab">
+                        todo
                     </div>
                 </div>
             </div>
-            <br/>
             <br/>
             <div class="card">
                 <div class="card-header">Results {{ data.found }} out of {{ data.out_of }} (took {{ data.search_time_ms }} ms)</div>
@@ -60,11 +76,9 @@
             </div>
         </div>
     </body>
-    <script type="text/javascript">
+    <script>
 
         axios.defaults.withCredentials = true;
-
-        Vue.component('pagination', VuejsPaginate)
 
         new Vue({
             el: '#app',
@@ -91,9 +105,6 @@
                 }
             },
             methods: {
-                clickCallback (pageNum) {
-                    console.log(pageNum)
-                },
                 search() {
                     this.loading = true
                     axios
