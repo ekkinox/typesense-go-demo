@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/jaswdr/faker"
+	"github.com/spf13/viper"
 	"github.com/typesense/typesense-go/typesense"
 	"github.com/typesense/typesense-go/typesense/api"
 	"github.com/typesense/typesense-go/typesense/api/pointer"
@@ -29,13 +30,9 @@ type TypesenseClient struct {
 
 func InitTypesenseClient() TypesenseClient {
 
-	//host := viper.GetString("TYPESENSE_HOST")
-	//port := viper.GetInt("TYPESENSE_PORT")
-	//key := viper.GetString("TYPESENSE_API_KEY")
-
-	host := "http://localhost"
-	port := 8108
-	key := "secret"
+	host := viper.GetString("TYPESENSE_HOST")
+	port := viper.GetInt("TYPESENSE_PORT")
+	key := viper.GetString("TYPESENSE_API_KEY")
 
 	client := typesense.NewClient(
 		typesense.WithServer(fmt.Sprintf("%s:%d", host, port)),
@@ -45,12 +42,13 @@ func InitTypesenseClient() TypesenseClient {
 	return TypesenseClient{client}
 }
 
-func (c TypesenseClient) Search(expression string, size int) (*api.SearchResult, error) {
+func (c TypesenseClient) Search(expression string, page int, size int) (*api.SearchResult, error) {
 	searchParameters := &api.SearchCollectionParams{
 		Q:       expression,
 		QueryBy: "name,description,address",
 		//FilterBy: pointer.String("num_employees:>100"),
 		SortBy:            pointer.String("num_employees:desc"),
+		Page:              pointer.Int(page),
 		PerPage:           pointer.Int(size),
 		HighlightStartTag: pointer.String("<span class=\"text-dark bg-warning\">"),
 		HighlightEndTag:   pointer.String("</span>"),

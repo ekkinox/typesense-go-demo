@@ -19,11 +19,11 @@ services:
     build:
       context: ./app
     ports:
-      - "8080:8080"
+      - "80:8080"
     networks:
       - typesense_demo_network
     environment:
-      TYPESENSE_HOST: "typesense_demo_typesense"
+      TYPESENSE_HOST: "http://typesense_demo_typesense"
       TYPESENSE_PORT: 8108
       TYPESENSE_API_KEY: "secret"
 
