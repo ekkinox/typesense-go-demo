@@ -2,7 +2,7 @@
 
 > [Typesense](https://typesense.org/) companies search demo application, written using [Golang](https://go.dev/), [Vue.js](https://vuejs.org/) and [Axios](https://axios-http.com/).
 
-![Screenshot](/home/jonathan/Dev/ankorstore/sandbox/typesense-go-demo/doc/screenshot.png)
+![Screenshot](doc/screenshot.png)
 
 ## Usage
 
