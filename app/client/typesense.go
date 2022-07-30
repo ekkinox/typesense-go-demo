@@ -42,17 +42,20 @@ func InitTypesenseClient() TypesenseClient {
 	return TypesenseClient{client}
 }
 
-func (c TypesenseClient) Search(expression string, page int, size int) (*api.SearchResult, error) {
+func (c TypesenseClient) Search(expression string, page int, size int, countries string) (*api.SearchResult, error) {
 	searchParameters := &api.SearchCollectionParams{
-		Q:       expression,
-		QueryBy: "name,description,address",
-		//FilterBy: pointer.String("num_employees:>100"),
+		Q:                 expression,
+		QueryBy:           "name,description,address",
 		SortBy:            pointer.String("num_employees:desc"),
 		Page:              pointer.Int(page),
 		PerPage:           pointer.Int(size),
 		HighlightStartTag: pointer.String("<span class=\"text-dark bg-warning\">"),
 		HighlightEndTag:   pointer.String("</span>"),
 		FacetBy:           pointer.String("country"),
+	}
+
+	if countries != "" {
+		searchParameters.FilterBy = pointer.String(fmt.Sprintf("country:>%s", countries))
 	}
 
 	return c.Client.Collection(Collection).Documents().Search(searchParameters)

@@ -22,8 +22,12 @@
                         </h3>
                     </div>
                     <div class="float-right">
-                        <span class="text-muted" v-if="loading"><i class="fas fa-spinner fa-spin"></i>&nbsp;Loading...</span>
-                        <span class="text-muted" v-else><i class="fas fa-clock"></i>&nbsp;Loaded in ~{{ data.search_time_ms }} ms</span>
+                        <span class="badge badge-pill badge-secondary" v-if="loading">
+                            <i class="fas fa-spinner fa-spin"></i>&nbsp;Loading...
+                        </span>
+                        <span class="badge badge-pill badge-success" v-else>
+                            <i class="fas fa-clock"></i>&nbsp;Loaded in ~{{ data.search_time_ms }} ms
+                        </span>
                     </div>
                     <div class="clearfix"></div>
                 </div>
@@ -43,12 +47,12 @@
                     <ul class="nav nav-tabs nav-justified card-header-tabs" id="userTab" role="tablist">
                         <li class="nav-item" role="presentation">
                             <a class="nav-link active" id="auth-tab" data-toggle="tab" href="#search" role="tab" aria-controls="search" aria-selected="true">
-                                <i class="fas fa-search"></i>&nbsp;Search&nbsp;<span class="badge badge-pill badge-primary">{{ data.out_of }}</span>
+                                <i class="fas fa-search"></i>&nbsp;Search companies&nbsp;<span class="badge badge-pill badge-primary">{{ data.out_of }}</span>
                             </a>
                         </li>
                         <li class="nav-item" role="presentation">
                             <a class="nav-link" id="populate-tab" data-toggle="tab" href="#populate" role="tab" aria-controls="populate" aria-selected="false">
-                                <i class="fas fa-plus-circle"></i>&nbsp;Populate
+                                <i class="fas fa-database"></i>&nbsp;Manage Companies
                             </a>
                         </li>
                     </ul>
@@ -56,7 +60,7 @@
                 <div class="card-body tab-content">
                     <div class="tab-pane fade show active" id="search" role="tabpanel" aria-labelledby="search-tab">
                         <div class="alert alert-info" role="alert">
-                            <i class="fas fa-info-circle"></i>&nbsp;You can <strong>full-text search live</strong> within the <strong>{{ data.out_of }}</strong> available companies below, with the expression of your choice.
+                            <i class="fas fa-info-circle"></i>&nbsp;You can <strong>full-text search</strong> within the <strong>{{ data.out_of }}</strong> available companies below, with the expression of your choice.
                         </div>
                         <div class="input-group">
                             <div class="input-group-prepend" title="See Typesense search documentation">
@@ -64,21 +68,21 @@
                             </div>
                             <input type="text" class="form-control" placeholder="Search for companies" aria-label="Search for companies" v-model="expression"/>
                             <div class="input-group-append">
-                                <button class="btn btn-primary" type="button" v-on:click="reload">
+                                <button class="btn btn-secondary" type="button" v-on:click="reload">
                                     <i class="fas fa-sync"></i>&nbsp;Reset
                                 </button>
                             </div>
                         </div>
                     </div>
                     <div class="tab-pane fade" id="populate" role="tabpanel" aria-labelledby="populate-tab">
-                        <div class="alert alert-info" role="alert">
-                            <i class="fas fa-info-circle"></i>&nbsp;You can <strong>wipe and repopulate the companies collection</strong> on Typesense below, with the number of companies to create of your choice.
+                        <div class="alert alert-warning" role="alert">
+                            <i class="fas fa-exclamation-circle"></i>&nbsp;Warning: this will <strong>wipe and repopulate the companies collection</strong> on Typesense, with the number of companies of your choice.
                         </div>
                         <div class="input-group">
                             <input type="number" class="form-control" placeholder="500" aria-label="Number of companies to populate" v-model="populate_count"/>
                             <div class="input-group-append">
-                                <button class="btn btn-primary" type="button" v-on:click="populate">
-                                    <i class="fas fa-plus-circle"></i>&nbsp;Populate
+                                <button class="btn btn-danger text-light" type="button" v-on:click="populate">
+                                    <i class="fas fa-exclamation-circle"></i>&nbsp;Wipe and repopulate
                                 </button>
                             </div>
                         </div>
@@ -89,11 +93,14 @@
             <div class="row">
                 <div class="col-md-2">
                     <div class="card">
-                        <div class="card-header">Countries</div>
+                        <div class="card-header"><i class="fa fa-globe"></i>&nbsp;Countries</div>
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item d-flex justify-content-between align-items-center" v-for="facet in countryFacets">
                                 <span>
-                                    <i class="fa fa-globe"></i>&nbsp;{{ facet.value }}
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" v-bind:id="facet.value" v-bind:value="facet.value" v-model="countries">
+                                        <label class="form-check-label" v-bind:for="facet.value">{{ facet.value }}</label>
+                                    </div>
                                 </span>
                                 <span class="badge badge-primary badge-pill">{{ facet.count }}</span>
                             </li>
@@ -103,52 +110,53 @@
                 <div class="col-md-10">
                     <div class="card">
                         <div class="card-header">
-                            <div class="float-left">
-                                <form class="form-inline">
-                                    Showing&nbsp;&nbsp;
-                                    <select id="inputState" class="form-control form-control-sm" v-model="size">
-                                        <option selected>20</option>
-                                        <option>50</option>
-                                        <option>100</option>
-                                        <option>250</option>
-                                    </select>
-                                    &nbsp;&nbsp;out of &nbsp;<b>{{ data.found }}</b>&nbsp; companies&nbsp;&nbsp;
-                                </form>
-                            </div>
-                            <div class="float-right">
-                                <div class="input-group">
-                                    <div class="input-group-prepend" title="See Typesense search documentation">
-                                        <button class="btn btn-primary btn-sm" type="button" v-if="canPrev" v-on:click="page -= 1"><</button>
-                                        <button class="btn btn-secondary btn-sm" type="button" v-else disabled><</button>
-                                    </div>
-                                    <input type="text" class="form-control form-control-sm" v-model="page" style="max-width: 40px !important;" readonly/>
-                                    <div class="input-group-append">
-                                        <button class="btn btn-primary btn-sm" type="button" v-if="canNext" v-on:click="page += 1">></button>
-                                        <button class="btn btn-secondary btn-sm" type="button" v-else disabled>></button>
-                                    </div>
+                            <nav aria-label="Page navigation example">
+                                <div class="float-left">
+                                    <form class="form-inline">
+                                        <i class="fa fa-building"></i>&nbsp;Showing&nbsp;&nbsp;
+                                        <select id="inputState" class="form-control form-control-sm" v-model="size">
+                                            <option selected>20</option>
+                                            <option>50</option>
+                                            <option>100</option>
+                                            <option>250</option>
+                                        </select>
+                                        &nbsp;&nbsp;out of &nbsp;<b>{{ data.found }}</b>&nbsp; companies&nbsp;&nbsp;
+                                    </form>
                                 </div>
-                            </div>
-                            <div class="clearfix"></div>
+                                <div class="float-right">
+                                    <ul class="pagination pagination-sm justify-content-end" style="margin-bottom: 0 !important;">
+                                        <li class="page-item active" v-if="canPrev"><a class="page-link" href="#" tabindex="-1" v-on:click="page -= 1">&laquo;</a></li>
+                                        <li class="page-item disabled" v-else><a class="page-link" href="#" tabindex="-1">&laquo;</a></li>
+                                        <li class="page-item disabled"><a class="page-link" href="#">{{ page }}</a></li>
+                                        <li class="page-item active" v-if="canNext"><a class="page-link" href="#" v-on:click="page += 1">&raquo;</a></li>
+                                        <li class="page-item disabled"  v-else><a class="page-link" href="#">&raquo;</a></li>
+                                    </ul>
+                                </div>
+                            </nav>
                         </div>
                         <div class="card-body">
                             <div class="card-columns">
                                 <div class="card bg-light" v-for="hit in highlightedHits">
+                                    <div class="card-header">
+                                        <i class="fa fa-building"></i>&nbsp;<span v-html="hit.dName">{{ hit.dName}}</span>
+                                    </div>
                                     <div class="card-body">
-                                        <h6 class="card-title"><i class="fa fa-building"></i>&nbsp;<strong v-html="hit.dName">{{ hit.dName}}</strong></h6>
-                                        <p class="card-text">
-                                            "<em v-html="hit.dDesc">{{ hit.document.dDesc }}</em>"
+                                        <p class="card-text" style="border-left-width: 2px; border-left-color: darkcyan">
+                                            "<em><span v-html="hit.dDesc">{{ hit.document.dDesc }}</span></em>"
                                         </p>
                                         <p class="card-text">
-                                            <small><i class="fa fa-map-marker"></i>&nbsp;<span v-html="hit.dAddr">{{ hit.document.dAddr }}</span></small>
+                                            <i class="fa fa-map-marker"></i>&nbsp;<span v-html="hit.dAddr">{{ hit.document.dAddr }}</span>
                                         </p>
-                                        <p class="card-text">
-                                            <div class="float-left">
-                                                <small class="text-muted"><i class="fa fa-users"></i>&nbsp;{{ hit.document.num_employees }} employees</small>
-                                            </div>
-                                            <div class="float-right">
-                                                <small class="text-muted"><i class="fa fa-globe"></i>&nbsp;{{ hit.document.country }}</small>
-                                            </div>
-                                        </p>
+                                    </div>
+                                    <div class="card-footer">
+                                        <div class="float-left">
+                                            <small class="text-muted"><i class="fa fa-users"></i>&nbsp;{{ hit.document.num_employees }} employees</small>
+                                        </div>
+                                        <div class="float-right">
+                                            <small class="text-muted"><i class="fa fa-globe"></i>&nbsp;{{ hit.document.country }}</small>
+                                        </div>
+                                        <div class="clearfix"></div>
+                                    </div>
                                     </div>
                                 </div>
                             </div>
@@ -170,6 +178,7 @@
                     expression: "",
                     page: 1,
                     size: 20,
+                    countries: [],
                     canPrev: false,
                     canNext: true,
                     populate_count: 500,
@@ -200,20 +209,25 @@
                 },
                 size() {
                     this.search()
+                },
+                countries() {
+                    this.search()
                 }
             },
             methods: {
                 populate() {
-                    this.loading = true
-                    axios
-                        .get('/populate?count=' + this.populate_count)
-                        .then(response => alert(response.data.count + ' companies were populated with success.'))
-                        .finally(() => this.reload())
+                    if(confirm("Are you sure?")) {
+                        this.loading = true
+                        axios
+                            .get('/populate?count=' + this.populate_count)
+                            .then(response => alert(response.data.count + ' companies were populated with success.'))
+                            .finally(() => this.reload())
+                    }
                 },
                 search() {
                     this.loading = true
                     axios
-                        .get('/search?expression=' + this.expression + '&page=' + this.page + '&size=' + this.size)
+                        .get('/search?expression=' + this.expression + '&page=' + this.page + '&size=' + this.size + '&countries=' + this.countries.join(','))
                         .then(response => this.data = response.data)
                         .finally(() => {this.refreshPaginate(); this.loading = false})
                 },
