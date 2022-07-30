@@ -52,6 +52,7 @@ func (c TypesenseClient) Search(expression string, page int, size int, countries
 		HighlightStartTag: pointer.String("<span class=\"text-dark bg-warning\">"),
 		HighlightEndTag:   pointer.String("</span>"),
 		FacetBy:           pointer.String("country"),
+		MaxFacetValues:    pointer.Int(30),
 	}
 
 	if countries != "" {
