@@ -22,15 +22,20 @@
                         </h3>
                     </div>
                     <div class="float-right">
-                        <span class="text-dark">
-                            <i class="fab fa-github"></i>&nbsp;<a href="https://github.com/ekkinox/typesense-go-demo" target="_blank">See on Github</a>
-                        </span>
+                        <span class="text-muted" v-if="loading"><i class="fas fa-spinner fa-spin"></i>&nbsp;Loading...</span>
+                        <span class="text-muted" v-else><i class="fas fa-clock"></i>&nbsp;Loaded in ~{{ data.search_time_ms }} ms</span>
                     </div>
                     <div class="clearfix"></div>
                 </div>
                 <hr/>
                 <div class="alert alert-success alert-no-margin-bottom" role="alert">
-                    <i class="fas fa-bullhorn"></i>&nbsp;<a href="https://typesense.org" target="_blank">Typesense</a> based demo application, written using <a href="https://go.dev" target="_blank">Golang</a>, <a href="https://vuejs.org" target="_blank">Vue.js</a> and <a href="https://axios-http.com" target="_blank">Axios</a>.
+                    <div class="float-left">
+                        <i class="fas fa-bullhorn"></i>&nbsp;<a href="https://typesense.org" target="_blank">Typesense</a> based demo application, written using <a href="https://go.dev" target="_blank">Golang</a>, <a href="https://vuejs.org" target="_blank">Vue.js</a> and <a href="https://axios-http.com" target="_blank">Axios</a>.
+                    </div>
+                    <div class="float-right">
+                        <i class="fab fa-github"></i>&nbsp;<a href="https://github.com/ekkinox/typesense-go-demo" target="_blank">See on Github</a>
+                    </div>
+                    <div class="clearfix"></div>
                 </div>
             </div>
             <div class="card">
@@ -108,18 +113,18 @@
                                         <option>250</option>
                                     </select>
                                     &nbsp;&nbsp;out of &nbsp;<b>{{ data.found }}</b>&nbsp; companies&nbsp;&nbsp;
-                                    <small class="text-muted" v-if="loading"><i class="fas fa-spinner fa-spin"></i>&nbsp;Loading...</small>
-                                    <small class="text-muted" v-else>(took ~{{ data.search_time_ms }} ms)</small>
                                 </form>
                             </div>
                             <div class="float-right">
                                 <div class="input-group">
                                     <div class="input-group-prepend" title="See Typesense search documentation">
-                                        <button class="btn btn-primary btn-sm" type="button" v-on:click="page -= 1"><</button>
+                                        <button class="btn btn-primary btn-sm" type="button" v-if="canPrev" v-on:click="page -= 1"><</button>
+                                        <button class="btn btn-secondary btn-sm" type="button" v-else disabled><</button>
                                     </div>
-                                    <input type="text" class="form-control form-control-sm" v-model="page" style="max-width: 40px !important;"/>
+                                    <input type="text" class="form-control form-control-sm" v-model="page" style="max-width: 40px !important;" readonly/>
                                     <div class="input-group-append">
-                                        <button class="btn btn-primary btn-sm" type="button" v-on:click="page += 1">></button>
+                                        <button class="btn btn-primary btn-sm" type="button" v-if="canNext" v-on:click="page += 1">></button>
+                                        <button class="btn btn-secondary btn-sm" type="button" v-else disabled>></button>
                                     </div>
                                 </div>
                             </div>
@@ -165,13 +170,19 @@
                     expression: "",
                     page: 1,
                     size: 20,
+                    canPrev: false,
+                    canNext: true,
                     populate_count: 500,
                     data: {
                         found: 0,
                         out_of: 0,
                         page: 0,
                         hits: [],
-                        facet_counts: [{counts:[]}],
+                        facet_counts: [
+                            {
+                                counts: []
+                            }
+                        ],
                         search_time_ms: 0
                     },
                 }
@@ -184,19 +195,11 @@
                         this.reload()
                     }
                 },
-                page(value) {
-                    if (value !== "") {
-                        this.search()
-                    } else {
-                        this.reload()
-                    }
+                page() {
+                    this.search()
                 },
-                size(value) {
-                    if (value !== "") {
-                        this.search()
-                    } else {
-                        this.reload()
-                    }
+                size() {
+                    this.search()
                 }
             },
             methods: {
@@ -212,7 +215,7 @@
                     axios
                         .get('/search?expression=' + this.expression + '&page=' + this.page + '&size=' + this.size)
                         .then(response => this.data = response.data)
-                        .finally(() => this.loading = false)
+                        .finally(() => {this.refreshPaginate(); this.loading = false})
                 },
                 reload() {
                     this.expression = ""
@@ -222,7 +225,11 @@
                     axios
                         .get('/search?page=' + this.page + '&size=' + this.size)
                         .then(response => this.data = response.data)
-                        .finally(() => this.loading = false)
+                        .finally(() => {this.refreshPaginate(); this.loading = false})
+                },
+                refreshPaginate() {
+                    this.canPrev = this.page > 1
+                    this.canNext = ((this.data.found - (this.page * this.size)) > 0)
                 }
             },
             computed: {
