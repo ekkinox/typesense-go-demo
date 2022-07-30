@@ -56,7 +56,7 @@ func (c TypesenseClient) Search(expression string, page int, size int, countries
 	}
 
 	if countries != "" {
-		searchParameters.FilterBy = pointer.String(fmt.Sprintf("country:>%s", countries))
+		searchParameters.FilterBy = pointer.String(fmt.Sprintf("country:%s", countries))
 	}
 
 	return c.Client.Collection(Collection).Documents().Search(searchParameters)
