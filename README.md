@@ -12,7 +12,7 @@ First, start the provided [docker compose stack](docker-compose.yaml)
 docker compose up -d
 ```
 
-Then head to, you can access the application on [http://localhost](http://localhost) to:
+Then you can access the application on [http://localhost](http://localhost) to:
 - first populate the companies collection
 - and then try to search for them
 
