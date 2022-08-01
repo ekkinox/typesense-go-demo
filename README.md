@@ -11,6 +11,7 @@ This project tests [Typesense](https://typesense.org/) features using their [gol
 - results highlighting
 - facets
 - filtering
+- schema management
 - bulk imports
 
 ## Usage
