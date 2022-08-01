@@ -23,7 +23,7 @@ docker compose up -d
 ```
 
 Then you can access the application on [http://localhost](http://localhost) to:
-- first head to the `Manage companies` tab to click on the `Wipe and append` button to prepare the collection with generated data
+- first head to the `Manage companies` tab and `Wipe and append` to prepare the collection with some data
 - and then head to the `Search companies` tab to try some queries, while using filters and facets on the left
 
 ## Configuration
