@@ -13,7 +13,7 @@ import (
 
 const (
 	Collection = "companies"
-	BatchSize  = 10000
+	BatchSize  = 1000
 )
 
 type Company struct {
@@ -63,7 +63,7 @@ func (c TypesenseClient) Search(expression string, page int, size int, countries
 	return c.Client.Collection(Collection).Documents().Search(searchParameters)
 }
 
-func (c TypesenseClient) CreateSchema() error {
+func (c TypesenseClient) WipeAndCreateSchema() error {
 
 	// wipe collection if exists
 	_, err := c.Client.Collection(Collection).Retrieve()
@@ -113,15 +113,23 @@ func (c TypesenseClient) CreateSchema() error {
 
 func (c TypesenseClient) PopulateSchema(num int) error {
 
+	// faker
 	gen := faker.New()
-	pos := 1
 
+	// get last doc position
+	collection, err := c.Client.Collection(Collection).Retrieve()
+	if err != nil {
+		return err
+	}
+	start := int(collection.NumDocuments)
+
+	// insert new docs
 	var documents []interface{}
 
+	pos := 1
 	for pos <= num {
-
 		documents = append(documents, &Company{
-			Id:           strconv.Itoa(pos),
+			Id:           strconv.Itoa(start + pos),
 			Name:         gen.Company().Name(),
 			Description:  gen.Company().CatchPhrase(),
 			Address:      gen.Address().Address()[1:],
@@ -137,7 +145,7 @@ func (c TypesenseClient) PopulateSchema(num int) error {
 		BatchSize: pointer.Int(BatchSize),
 	}
 
-	_, err := c.Client.Collection(Collection).Documents().Import(documents, params)
+	_, err = c.Client.Collection(Collection).Documents().Import(documents, params)
 	if err != nil {
 		return err
 	}

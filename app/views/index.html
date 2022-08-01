@@ -76,13 +76,18 @@
                     </div>
                     <div class="tab-pane fade" id="populate" role="tabpanel" aria-labelledby="populate-tab">
                         <div class="alert alert-warning" role="alert">
-                            <i class="fas fa-exclamation-circle"></i>&nbsp;Warning: this will <strong>wipe and repopulate the companies collection</strong> on Typesense, with the number of companies of your choice.
+                            <i class="fas fa-exclamation-circle"></i>&nbsp;Warning: you can choose to <strong>simply append</strong> or <strong>wipe and append</strong> with the number of companies of your choice.
                         </div>
                         <div class="input-group">
                             <input type="number" class="form-control" placeholder="500" aria-label="Number of companies to populate" v-model="populate_count"/>
                             <div class="input-group-append">
-                                <button class="btn btn-danger text-light" type="button" v-on:click="populate">
-                                    <i class="fas fa-exclamation-circle"></i>&nbsp;Wipe and repopulate
+                                <button class="btn btn-primary text-light" type="button" v-on:click="append">
+                                    <i class="fas fa-plus-circle"></i>&nbsp;Append
+                                </button>
+                            </div>
+                            <div class="input-group-append">
+                                <button class="btn btn-danger text-light" type="button" v-on:click="wipe">
+                                    <i class="fas fa-exclamation-circle"></i>&nbsp;Wipe and append
                                 </button>
                             </div>
                         </div>
@@ -215,12 +220,21 @@
                 }
             },
             methods: {
-                populate() {
-                    if(confirm("Are you sure?")) {
+                wipe() {
+                    if(confirm('This will wipe and recreate the companies collection with ' + this.populate_count + ' new companies, are you sure? ')) {
+                        this.loading = true
+                        axios
+                            .get('/populate?wipe=true&count=' + this.populate_count)
+                            .then(response => alert('Collection was wiped, and ' + response.data.count + ' new companies were added to collection with success.'))
+                            .finally(() => this.reload())
+                    }
+                },
+                append() {
+                    if(confirm('This will append ' + this.populate_count + ' new companies, are you sure?')) {
                         this.loading = true
                         axios
                             .get('/populate?count=' + this.populate_count)
-                            .then(response => alert(response.data.count + ' companies were populated with success.'))
+                            .then(response => alert(response.data.count + ' new companies were added to collection with success.'))
                             .finally(() => this.reload())
                     }
                 },

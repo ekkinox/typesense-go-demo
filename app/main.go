@@ -59,14 +59,16 @@ func main() {
 	// populate endpoint
 	fiberApp.Get("/populate", func(c *fiber.Ctx) error {
 
-		err := typesenseClient.CreateSchema()
-		if err != nil {
-			return err
+		wipe := c.Query("wipe", "false")
+		if wipe == "true" {
+			err := typesenseClient.WipeAndCreateSchema()
+			if err != nil {
+				return err
+			}
 		}
 
 		count, _ := strconv.ParseInt(c.Query("count", "500"), 10, 0)
-
-		err = typesenseClient.PopulateSchema(int(count))
+		err := typesenseClient.PopulateSchema(int(count))
 		if err != nil {
 			return err
 		}
