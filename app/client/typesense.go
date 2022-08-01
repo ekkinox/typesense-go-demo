@@ -43,7 +43,7 @@ func InitTypesenseClient() TypesenseClient {
 	return TypesenseClient{client}
 }
 
-func (c TypesenseClient) Search(expression string, page int, size int, countries string) (*api.SearchResult, error) {
+func (c TypesenseClient) Search(expression string, page int, size int, countries string, min int, max int) (*api.SearchResult, error) {
 	searchParameters := &api.SearchCollectionParams{
 		Q:                 expression,
 		QueryBy:           "name,description,address",
@@ -54,6 +54,7 @@ func (c TypesenseClient) Search(expression string, page int, size int, countries
 		HighlightEndTag:   pointer.String("</span>"),
 		FacetBy:           pointer.String("country"),
 		MaxFacetValues:    pointer.Int(30),
+		FilterBy:          pointer.String(fmt.Sprintf("num_employees:>=%d&&num_employees:<=%d", min, max)),
 	}
 
 	if countries != "" {

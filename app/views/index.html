@@ -98,6 +98,26 @@
             <div class="row">
                 <div class="col-md-2">
                     <div class="card">
+                        <div class="card-header"><i class="fa fa-users"></i>&nbsp;Employees</div>
+                        <div class="card-body">
+                            <form>
+                                <div class="form-group row">
+                                    <label for="min" class="col-sm-5 col-form-label" style="padding-right: 0 !important;">Min</label>
+                                    <div class="col-sm-7" style="padding-left: 0 !important; padding-right: 0 !important;">
+                                        <input type="number" class="form-control form-control-sm" id="min" aria-describedby="minHelp" placeholder="1" min="1" max="10000" v-model="min">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="max" class="col-sm-5 col-form-label" style="padding-right: 0 !important;">Max</label>
+                                    <div class="col-sm-7" style="padding-left: 0 !important; padding-right: 0 !important;">
+                                        <input type="number" class="form-control form-control-sm" id="max" aria-describedby="maxHelp" placeholder="10000" min="1" max="10000" v-model="max">
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <br/>
+                    <div class="card">
                         <div class="card-header"><i class="fa fa-globe"></i>&nbsp;Countries</div>
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item d-flex justify-content-between align-items-center" v-for="facet in countryFacets">
@@ -183,6 +203,8 @@
                     expression: "",
                     page: 1,
                     size: 20,
+                    min: 1,
+                    max: 10000,
                     countries: [],
                     canPrev: false,
                     canNext: true,
@@ -215,6 +237,12 @@
                 size() {
                     this.search()
                 },
+                min() {
+                    this.search()
+                },
+                max() {
+                    this.search()
+                },
                 countries() {
                     this.search()
                 }
@@ -241,7 +269,7 @@
                 search() {
                     this.loading = true
                     axios
-                        .get('/search?expression=' + this.expression + '&page=' + this.page + '&size=' + this.size + '&countries=' + this.countries.join(','))
+                        .get('/search?expression=' + this.expression + '&page=' + this.page + '&size=' + this.size + '&countries=' + this.countries.join(',') + '&min=' + this.min + '&max=' + this.max)
                         .then(response => this.data = response.data)
                         .finally(() => {this.refreshPaginate(); this.loading = false})
                 },
@@ -249,9 +277,11 @@
                     this.expression = ""
                     this.page = 1
                     this.size = 20
+                    this.min = 1
+                    this.max = 10000
                     this.loading = true
                     axios
-                        .get('/search?page=' + this.page + '&size=' + this.size)
+                        .get('/search?page=' + this.page + '&size=' + this.size+ '&min=' + this.min + '&max=' + this.max)
                         .then(response => this.data = response.data)
                         .finally(() => {this.refreshPaginate(); this.loading = false})
                 },

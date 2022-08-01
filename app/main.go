@@ -46,9 +46,11 @@ func main() {
 		expression := c.Query("expression", "")
 		page, _ := strconv.ParseInt(c.Query("page", "1"), 10, 0)
 		size, _ := strconv.ParseInt(c.Query("size", "20"), 10, 0)
+		min, _ := strconv.ParseInt(c.Query("min", "1"), 10, 0)
+		max, _ := strconv.ParseInt(c.Query("max", "10000"), 10, 0)
 		countries := c.Query("countries", "")
 
-		res, err := typesenseClient.Search(expression, int(page), int(size), countries)
+		res, err := typesenseClient.Search(expression, int(page), int(size), countries, int(min), int(max))
 		if err != nil {
 			return err
 		}
