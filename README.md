@@ -4,6 +4,15 @@
 
 ![Screenshot](doc/screenshot.png)
 
+## About
+
+This project tests [Typesense](https://typesense.org/) features using their [golang library](https://github.com/typesense/typesense-go) and expose them in a reactive web UI:
+- live full text search
+- results highlighting
+- facets
+- filtering
+- bulk imports
+
 ## Usage
 
 First, start the provided [docker compose stack](docker-compose.yaml)
