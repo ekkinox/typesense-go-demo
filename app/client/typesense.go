@@ -13,6 +13,7 @@ import (
 
 const (
 	Collection = "companies"
+	BatchSize  = 10000
 )
 
 type Company struct {
@@ -133,7 +134,7 @@ func (c TypesenseClient) PopulateSchema(num int) error {
 
 	params := &api.ImportDocumentsParams{
 		Action:    pointer.String("create"),
-		BatchSize: pointer.Int(num),
+		BatchSize: pointer.Int(BatchSize),
 	}
 
 	_, err := c.Client.Collection(Collection).Documents().Import(documents, params)
