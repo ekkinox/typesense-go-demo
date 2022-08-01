@@ -13,7 +13,7 @@ docker compose up -d
 ```
 
 Then you can access the application on [http://localhost](http://localhost) to:
-- first populate the companies collection
+- first populate the companies collection with the `Wipe and append` button in `Manage companies` section
 - and then try to search for them
 
 ## Configuration
